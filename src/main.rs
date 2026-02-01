@@ -11,6 +11,7 @@ use std::io;
 
 mod app;
 mod event;
+mod game;
 
 use app::App;
 use event::EventHandler;

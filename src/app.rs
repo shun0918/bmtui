@@ -8,14 +8,18 @@ use ratatui::{
 
 use crossterm::event::{KeyCode, KeyEvent};
 
+use crate::game::{components::Direction as GameDirection, GameState};
+
 pub struct App {
     should_quit: bool,
+    game_state: GameState,
 }
 
 impl App {
     pub fn new() -> Self {
         Self {
             should_quit: false,
+            game_state: GameState::new(),
         }
     }
 
@@ -43,7 +47,7 @@ impl App {
     }
 
     fn render_game_board(&self, frame: &mut Frame, area: Rect) {
-        let board = self.create_sample_board();
+        let board = self.create_game_board();
         let paragraph = Paragraph::new(board)
             .alignment(Alignment::Center)
             .block(Block::default().borders(Borders::ALL).title("Game Board"));
@@ -63,20 +67,32 @@ impl App {
         frame.render_widget(paragraph, area);
     }
 
-    fn create_sample_board(&self) -> Vec<Line<'static>> {
-        vec![
-            Line::from("###############"),
-            Line::from("#🧑   📦   📦  👾#"),
-            Line::from("# 🧱 # 🧱 # 🧱 # 🧱 #"),
-            Line::from("#   📦   📦   📦#"),
-            Line::from("# 🧱 # 🧱 # 🧱 # 🧱 #"),
-            Line::from("#   📦   📦   📦#"),
-            Line::from("# 🧱 # 🧱 # 🧱 # 🧱 #"),
-            Line::from("#   📦   📦   📦#"),
-            Line::from("# 🧱 # 🧱 # 🧱 # 🧱 #"),
-            Line::from("#👾  📦   📦   👾#"),
-            Line::from("###############"),
-        ]
+    fn create_game_board(&self) -> Vec<Line<'static>> {
+        let mut lines = Vec::new();
+
+        for y in 0..self.game_state.world.height() {
+            let mut line_str = String::new();
+            for x in 0..self.game_state.world.width() {
+                let mut found = false;
+
+                for entity in &self.game_state.entities {
+                    if entity.is_alive && entity.position.x == x && entity.position.y == y {
+                        line_str.push_str(entity.to_char());
+                        found = true;
+                        break;
+                    }
+                }
+
+                if !found {
+                    if let Some(tile) = self.game_state.world.get_tile(x, y) {
+                        line_str.push_str(tile.to_char());
+                    }
+                }
+            }
+            lines.push(Line::from(line_str));
+        }
+
+        lines
     }
 
     pub fn handle_event(&mut self, event: crossterm::event::Event) -> bool {
@@ -93,10 +109,31 @@ impl App {
                 self.should_quit = true;
                 false
             }
+            KeyCode::Char('h') => {
+                self.game_state
+                    .move_entity(self.game_state.player_id, GameDirection::Left);
+                true
+            }
+            KeyCode::Char('j') => {
+                self.game_state
+                    .move_entity(self.game_state.player_id, GameDirection::Down);
+                true
+            }
+            KeyCode::Char('k') => {
+                self.game_state
+                    .move_entity(self.game_state.player_id, GameDirection::Up);
+                true
+            }
+            KeyCode::Char('l') => {
+                self.game_state
+                    .move_entity(self.game_state.player_id, GameDirection::Right);
+                true
+            }
             _ => true,
         }
     }
 
     pub fn tick(&mut self) {
+        self.game_state.tick(0.05);
     }
 }

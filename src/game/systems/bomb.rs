@@ -45,46 +45,51 @@ pub fn update_explosions(game_state: &mut GameState, delta_time: f32) {
 }
 
 fn create_explosion(game_state: &mut GameState, x: usize, y: usize, range: usize) {
-    game_state.add_explosion(x, y);
+    let mut pending = vec![(x, y, range)];
 
-    let directions = [(0, -1), (0, 1), (-1, 0), (1, 0)];
+    while let Some((cx, cy, crange)) = pending.pop() {
+        game_state.add_explosion(cx, cy);
 
-    for (dx, dy) in &directions {
-        for i in 1..=range {
-            let new_x = (x as i32 + dx * i as i32) as usize;
-            let new_y = (y as i32 + dy * i as i32) as usize;
+        let directions = [(0, -1), (0, 1), (-1, 0), (1, 0)];
 
-            if let Some(tile) = game_state.world.get_tile(new_x, new_y) {
-                match tile {
-                    Tile::Wall => break,
-                    Tile::Breakable => {
-                        game_state.world.set_tile(new_x, new_y, Tile::Empty);
-                        game_state.add_explosion(new_x, new_y);
+        for (dx, dy) in &directions {
+            for i in 1..=crange {
+                let new_x = (cx as i32 + dx * i as i32) as usize;
+                let new_y = (cy as i32 + dy * i as i32) as usize;
 
-                        if rand::random::<f32>() < 0.3 {
-                            let item_type = if rand::random::<bool>() {
-                                ItemType::Fire
-                            } else {
-                                ItemType::Bomb
-                            };
-                            game_state.add_item(new_x, new_y, item_type);
+                if let Some(tile) = game_state.world.get_tile(new_x, new_y) {
+                    match tile {
+                        Tile::Wall => break,
+                        Tile::Breakable => {
+                            game_state.world.set_tile(new_x, new_y, Tile::Empty);
+                            game_state.add_explosion(new_x, new_y);
+
+                            if rand::random::<f32>() < 0.3 {
+                                let item_type = if rand::random::<bool>() {
+                                    ItemType::Fire
+                                } else {
+                                    ItemType::Bomb
+                                };
+                                game_state.add_item(new_x, new_y, item_type);
+                            }
+                            break;
                         }
-                        break;
+                        Tile::Empty => {
+                            game_state.add_explosion(new_x, new_y);
+                        }
                     }
-                    Tile::Empty => {
-                        game_state.add_explosion(new_x, new_y);
-                    }
+                } else {
+                    break;
                 }
-            } else {
-                break;
             }
         }
-    }
 
-    damage_entities_in_explosions(game_state);
+        let chain = damage_entities_in_explosions(game_state);
+        pending.extend(chain);
+    }
 }
 
-fn damage_entities_in_explosions(game_state: &mut GameState) {
+fn damage_entities_in_explosions(game_state: &mut GameState) -> Vec<(usize, usize, usize)> {
     let explosion_positions: Vec<(usize, usize)> = game_state
         .entities
         .iter()
@@ -92,16 +97,33 @@ fn damage_entities_in_explosions(game_state: &mut GameState) {
         .map(|e| (e.position.x, e.position.y))
         .collect();
 
+    let mut chain_explosions = Vec::new();
+
     for entity in &mut game_state.entities {
-        if entity.is_alive
-            && (entity.entity_type == EntityType::Player || entity.entity_type == EntityType::Enemy)
-        {
-            for (ex, ey) in &explosion_positions {
-                if entity.position.x == *ex && entity.position.y == *ey {
-                    entity.is_alive = false;
-                    break;
-                }
+        if !entity.is_alive {
+            continue;
+        }
+
+        for (ex, ey) in &explosion_positions {
+            if entity.position.x != *ex || entity.position.y != *ey {
+                continue;
             }
+
+            match entity.entity_type {
+                EntityType::Player | EntityType::Enemy => {
+                    entity.is_alive = false;
+                }
+                EntityType::Bomb => {
+                    entity.is_alive = false;
+                    if let Some(bomb_data) = &entity.bomb_data {
+                        chain_explosions.push((entity.position.x, entity.position.y, bomb_data.range));
+                    }
+                }
+                _ => {}
+            }
+            break;
         }
     }
+
+    chain_explosions
 }

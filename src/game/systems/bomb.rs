@@ -1,6 +1,6 @@
 use crate::game::{
-    components::{ExplosionData, ItemType},
-    entity::{Entity, EntityType},
+    components::ItemType,
+    entity::EntityType,
     state::GameState,
     world::Tile,
 };

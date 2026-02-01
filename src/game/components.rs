@@ -33,7 +33,6 @@ impl Direction {
 pub struct PlayerStats {
     pub max_bombs: usize,
     pub bomb_range: usize,
-    pub speed: f32,
 }
 
 impl Default for PlayerStats {
@@ -41,7 +40,6 @@ impl Default for PlayerStats {
         Self {
             max_bombs: 1,
             bomb_range: 1,
-            speed: 1.0,
         }
     }
 }

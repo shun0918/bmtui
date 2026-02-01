@@ -22,7 +22,7 @@ impl GameState {
 
     pub fn from_stage(stage: StageConfig) -> Self {
         let layout: Vec<&str> = stage.layout.iter().map(|s| s.as_str()).collect();
-        let mut world = World::from_layout(&layout);
+        let world = World::from_layout(&layout);
         let mut entities = Vec::new();
         let mut next_entity_id = 0;
         let mut player_id = 0;

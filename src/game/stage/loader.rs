@@ -1,13 +1,4 @@
 use super::StageConfig;
-use std::fs;
-use std::path::Path;
-
-pub fn load_stage<P: AsRef<Path>>(path: P) -> Result<StageConfig, Box<dyn std::error::Error>> {
-    let content = fs::read_to_string(path)?;
-    let config: StageConfig = ron::from_str(&content)?;
-    config.validate()?;
-    Ok(config)
-}
 
 pub fn get_default_stage() -> StageConfig {
     StageConfig {

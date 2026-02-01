@@ -28,15 +28,6 @@ pub struct World {
 }
 
 impl World {
-    pub fn new(width: usize, height: usize) -> Self {
-        let tiles = vec![vec![Tile::Empty; width]; height];
-        Self {
-            width,
-            height,
-            tiles,
-        }
-    }
-
     pub fn from_layout(layout: &[&str]) -> Self {
         let height = layout.len();
         let width = if height > 0 { layout[0].len() } else { 0 };

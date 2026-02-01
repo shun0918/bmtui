@@ -19,8 +19,8 @@ pub fn update_enemy_ai(game_state: &mut GameState) {
 }
 
 fn random_walk_ai(game_state: &mut GameState, enemy_id: usize) {
-    let mut rng = rand::thread_rng();
-    let direction = match rng.gen_range(0..4) {
+    let mut rng = rand::rng();
+    let direction = match rng.random_range(0..4) {
         0 => Direction::Up,
         1 => Direction::Down,
         2 => Direction::Left,

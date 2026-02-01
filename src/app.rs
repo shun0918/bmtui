@@ -57,7 +57,7 @@ impl App {
     }
 
     fn render_header(&self, frame: &mut Frame, area: Rect) {
-        let title = Paragraph::new("💣 Bomberman TUI 💣")
+        let title = Paragraph::new("💣 BMTUI 💣")
             .style(Style::default().fg(Color::Yellow))
             .alignment(Alignment::Center)
             .block(Block::default().borders(Borders::ALL));

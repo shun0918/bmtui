@@ -1,5 +1,5 @@
 {
-    "name": "Bomberman TUI (Rust)",
+    "name": "BMTUI (Rust)",
     "image": "mcr.microsoft.com/devcontainers/rust:1-bullseye",
     "customizations": {
         "vscode": {

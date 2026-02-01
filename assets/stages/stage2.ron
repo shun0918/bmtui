@@ -1,0 +1,20 @@
+StageConfig(
+    name: "Stage 2 - Challenge",
+    width: 17,
+    height: 13,
+    layout: [
+        "#################",
+        "#P X X X X X X E#",
+        "# # # # # # # # #",
+        "# X X X X X X X #",
+        "# # # # # # # # #",
+        "#E X X X X X X E#",
+        "# # # # # # # # #",
+        "# X X X X X X X #",
+        "# # # # # # # # #",
+        "#E X X X X X X E#",
+        "# # # # # # # # #",
+        "# X X X X X X X #",
+        "#################",
+    ],
+)

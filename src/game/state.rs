@@ -1,6 +1,7 @@
 use super::{
     components::{Direction, ItemType},
     entity::{Entity, EntityType},
+    stage::{loader::get_default_stage, StageConfig},
     systems::ai::{check_player_enemy_collision, update_enemy_ai},
     systems::bomb::{update_bombs, update_explosions},
     world::World,
@@ -16,20 +17,11 @@ pub struct GameState {
 
 impl GameState {
     pub fn new() -> Self {
-        let layout = vec![
-            "###############",
-            "#P   X   X   E#",
-            "# # # # # # # #",
-            "#   X   X   X #",
-            "# # # # # # # #",
-            "#   X   X   X #",
-            "# # # # # # # #",
-            "#   X   X   X #",
-            "# # # # # # # #",
-            "#E  X   X   E #",
-            "###############",
-        ];
+        Self::from_stage(get_default_stage())
+    }
 
+    pub fn from_stage(stage: StageConfig) -> Self {
+        let layout: Vec<&str> = stage.layout.iter().map(|s| s.as_str()).collect();
         let mut world = World::from_layout(&layout);
         let mut entities = Vec::new();
         let mut next_entity_id = 0;

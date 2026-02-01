@@ -76,13 +76,19 @@ impl App {
         let mut lines = Vec::new();
 
         for y in 0..self.game_state.world.height() {
-            let mut line_str = String::new();
+            let mut spans = Vec::new();
             for x in 0..self.game_state.world.width() {
                 let mut found = false;
 
                 for entity in &self.game_state.entities {
                     if entity.is_alive && entity.position.x == x && entity.position.y == y {
-                        line_str.push_str(entity.to_char());
+                        let char_str = entity.to_char().to_string();
+                        let span = if entity.entity_type == crate::game::entity::EntityType::Item {
+                            Span::styled(char_str, Style::default().bg(Color::White).fg(Color::Black))
+                        } else {
+                            Span::raw(char_str)
+                        };
+                        spans.push(span);
                         found = true;
                         break;
                     }
@@ -90,11 +96,11 @@ impl App {
 
                 if !found {
                     if let Some(tile) = self.game_state.world.get_tile(x, y) {
-                        line_str.push_str(tile.to_char());
+                        spans.push(Span::raw(tile.to_char().to_string()));
                     }
                 }
             }
-            lines.push(Line::from(line_str));
+            lines.push(Line::from(spans));
         }
 
         lines

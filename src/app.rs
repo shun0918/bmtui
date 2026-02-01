@@ -129,6 +129,10 @@ impl App {
                     .move_entity(self.game_state.player_id, GameDirection::Right);
                 true
             }
+            KeyCode::Char(' ') => {
+                self.game_state.place_bomb();
+                true
+            }
             _ => true,
         }
     }

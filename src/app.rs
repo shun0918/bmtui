@@ -9,6 +9,7 @@ use ratatui::{
 use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::game::{components::Direction as GameDirection, GameState};
+use crate::render::widgets::hud;
 
 pub struct App {
     should_quit: bool,
@@ -29,13 +30,13 @@ impl App {
             .constraints([
                 Constraint::Length(3),
                 Constraint::Min(0),
-                Constraint::Length(3),
+                Constraint::Length(5),
             ])
             .split(frame.area());
 
         self.render_header(frame, chunks[0]);
         self.render_game_board(frame, chunks[1]);
-        self.render_footer(frame, chunks[2]);
+        hud::render_hud(frame, chunks[2], &self.game_state);
     }
 
     fn render_header(&self, frame: &mut Frame, area: Rect) {
@@ -51,19 +52,6 @@ impl App {
         let paragraph = Paragraph::new(board)
             .alignment(Alignment::Center)
             .block(Block::default().borders(Borders::ALL).title("Game Board"));
-        frame.render_widget(paragraph, area);
-    }
-
-    fn render_footer(&self, frame: &mut Frame, area: Rect) {
-        let help_text = Line::from(vec![
-            Span::raw("hjkl: 移動 | "),
-            Span::raw("Space: 爆弾設置 | "),
-            Span::raw("p: ポーズ | "),
-            Span::styled("q: 終了", Style::default().fg(Color::Red)),
-        ]);
-        let paragraph = Paragraph::new(help_text)
-            .alignment(Alignment::Center)
-            .block(Block::default().borders(Borders::ALL));
         frame.render_widget(paragraph, area);
     }
 

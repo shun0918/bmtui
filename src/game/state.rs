@@ -1,6 +1,7 @@
 use super::{
     components::{Direction, ItemType},
     entity::{Entity, EntityType},
+    systems::ai::{check_player_enemy_collision, update_enemy_ai},
     systems::bomb::{update_bombs, update_explosions},
     world::World,
 };
@@ -10,6 +11,7 @@ pub struct GameState {
     pub entities: Vec<Entity>,
     next_entity_id: usize,
     pub player_id: usize,
+    enemy_move_timer: f32,
 }
 
 impl GameState {
@@ -55,6 +57,7 @@ impl GameState {
             entities,
             next_entity_id,
             player_id,
+            enemy_move_timer: 0.0,
         }
     }
 
@@ -221,8 +224,15 @@ impl GameState {
     }
 
     pub fn tick(&mut self, delta_time: f32) {
+        self.enemy_move_timer += delta_time;
+        if self.enemy_move_timer >= 0.3 {
+            update_enemy_ai(self);
+            self.enemy_move_timer = 0.0;
+        }
+
         update_bombs(self, delta_time);
         update_explosions(self, delta_time);
         self.collect_items();
+        check_player_enemy_collision(self);
     }
 }
